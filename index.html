@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kinetic Pattern Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #020617; font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Custom styling for range inputs to match the sleek React version */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #334155;
+            border-radius: 2px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="flex h-screen text-slate-100">
+
+    <!-- Sidebar Controls -->
+    <div class="w-80 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col z-10 shadow-2xl h-full overflow-y-auto">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                Kinetic Patterns
+            </h1>
+            <p class="text-sm text-slate-400 mt-1">HTML5 + JS Edition</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="p-4 flex gap-2 overflow-x-auto border-b border-slate-800 no-scrollbar">
+            <button id="tab-bouncing" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all flex-1 bg-blue-600 text-white shadow-lg shadow-blue-900/20">Bouncing</button>
+            <button id="tab-pendulum" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all flex-1 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200">Pendulum</button>
+            <button id="tab-spirograph" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all flex-1 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200">Spirograph</button>
+        </div>
+
+        <div class="p-6 flex-1">
+            
+            <div id="panel-bouncing" class="control-panel block">
+                <div class="mb-6 p-4 rounded-xl bg-slate-800 border border-slate-700">
+                    <h3 class="text-sm font-semibold text-slate-200 mb-4 uppercase tracking-wider">Movement</h3>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Speed</label>
+                            <span id="b-speed-val" class="text-sm text-slate-400">2</span>
+                        </div>
+                        <input type="range" id="b-speed" min="1" max="10" step="0.5" value="2">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Initial Balls</label>
+                            <span id="b-count-val" class="text-sm text-slate-400">3</span>
+                        </div>
+                        <input type="range" id="b-count" min="1" max="12" step="1" value="3">
+                    </div>
+                </div>
+
+                <div class="mb-6 p-4 rounded-xl bg-slate-800 border border-slate-700">
+                    <h3 class="text-sm font-semibold text-slate-200 mb-4 uppercase tracking-wider">Appearance</h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-300 mb-1">Container Shape</label>
+                        <select id="b-shape" class="w-full bg-slate-700 border border-slate-600 text-slate-200 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 outline-none cursor-pointer">
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
+                            <option value="oval">Oval</option>
+                            <option value="pentagon">Pentagon</option>
+                            <option value="hexagon">Hexagon</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Trail Length</label>
+                            <span id="b-trail-val" class="text-sm text-slate-400">50</span>
+                        </div>
+                        <input type="range" id="b-trail" min="0" max="200" step="10" value="50">
+                    </div>
+
+                    <div class="flex items-center mt-4">
+                        <input type="checkbox" id="b-center" checked class="w-4 h-4 rounded cursor-pointer accent-blue-600">
+                        <label for="b-center" class="ml-2 text-sm font-medium text-slate-300 cursor-pointer">Draw Center Lines</label>
+                    </div>
+                    
+                    <div class="flex items-center mt-4">
+                        <input type="checkbox" id="b-multiply" class="w-4 h-4 rounded cursor-pointer accent-blue-600">
+                        <label for="b-multiply" class="ml-2 text-sm font-medium text-slate-300 cursor-pointer">Multiply on Collision</label>
+                    </div>
+
+                    <div id="b-max-container" class="mt-4 hidden">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Max Balls Limit</label>
+                            <span id="b-max-val" class="text-sm text-slate-400">100</span>
+                        </div>
+                        <input type="range" id="b-max" min="10" max="300" step="10" value="100">
+                    </div>
+
+                    <div class="flex items-center mt-4 mb-4">
+                        <input type="checkbox" id="b-random" class="w-4 h-4 rounded cursor-pointer accent-blue-600">
+                        <label for="b-random" class="ml-2 text-sm font-medium text-slate-300 cursor-pointer">Randomize Directions on Start</label>
+                    </div>
+
+                    <button id="btn-restart" class="w-full mt-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-100 text-sm font-semibold py-2 px-4 rounded-lg transition-colors shadow-sm">
+                        Restart Animation
+                    </button>
+                </div>
+            </div>
+
+            <div id="panel-pendulum" class="control-panel hidden">
+                <div class="mb-6 p-4 rounded-xl bg-slate-800 border border-slate-700">
+                    <h3 class="text-sm font-semibold text-slate-200 mb-4 uppercase tracking-wider">Physics</h3>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Simulation Speed</label>
+                            <span id="p-speed-val" class="text-sm text-slate-400">1.5</span>
+                        </div>
+                        <input type="range" id="p-speed" min="0.5" max="3" step="0.1" value="1.5">
+                    </div>
+                </div>
+
+                <div class="mb-6 p-4 rounded-xl bg-slate-800 border border-slate-700">
+                    <h3 class="text-sm font-semibold text-slate-200 mb-4 uppercase tracking-wider">Geometry</h3>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Number of Pendulums</label>
+                            <span id="p-count-val" class="text-sm text-slate-400">15</span>
+                        </div>
+                        <input type="range" id="p-count" min="5" max="40" step="1" value="15">
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Length Offset</label>
+                            <span id="p-offset-val" class="text-sm text-slate-400">20</span>
+                        </div>
+                        <input type="range" id="p-offset" min="5" max="30" step="1" value="20">
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-spirograph" class="control-panel hidden">
+                <div class="text-xs text-slate-400 mb-4 bg-slate-800 p-2 rounded border border-slate-700">
+                    Adjust gear ratios to create different patterns. Changing values resets the drawing.
+                </div>
+                
+                <div class="mb-6 p-4 rounded-xl bg-slate-800 border border-slate-700">
+                    <h3 class="text-sm font-semibold text-slate-200 mb-4 uppercase tracking-wider">Gears</h3>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Outer Gear (R)</label>
+                            <span id="s-outer-val" class="text-sm text-slate-400">150</span>
+                        </div>
+                        <input type="range" id="s-outer" min="50" max="300" step="1" value="150">
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Inner Gear (r)</label>
+                            <span id="s-inner-val" class="text-sm text-slate-400">52</span>
+                        </div>
+                        <input type="range" id="s-inner" min="10" max="150" step="1" value="52">
+                    </div>
+                </div>
+
+                <div class="mb-6 p-4 rounded-xl bg-slate-800 border border-slate-700">
+                    <h3 class="text-sm font-semibold text-slate-200 mb-4 uppercase tracking-wider">Drawing</h3>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Pen Distance (d)</label>
+                            <span id="s-pen-val" class="text-sm text-slate-400">70</span>
+                        </div>
+                        <input type="range" id="s-pen" min="10" max="200" step="1" value="70">
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <label class="text-sm font-medium text-slate-300">Draw Speed</label>
+                            <span id="s-speed-val" class="text-sm text-slate-400">10</span>
+                        </div>
+                        <input type="range" id="s-speed" min="1" max="100" step="1" value="10">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="flex-1 relative bg-slate-950" id="canvas-container">
+        <canvas id="sim-canvas" class="absolute inset-0 block w-full h-full"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // State object to replace React state
+        const state = {
+            activeSim: 'bouncing',
+            dimensions: { width: 0, height: 0 },
+            bouncing: {
+                speed: 2, count: 3, shape: 'circle', trailLength: 50,
+                drawCenterLines: true, multiplyOnCollision: false, maxBalls: 100, randomizeDirections: false
+            },
+            pendulum: { speed: 1.5, count: 15, lengthMultiplier: 20 },
+            spirograph: { speed: 10, outerRadius: 150, innerRadius: 52, penDistance: 70 }
+        };
+
+        // Animation variables
+        let time = 0;
+        let animationId;
+        let cx = 0;
+        let cy = 0;
+        
+        // Bouncing specific state
+        let balls = [];
+        
+        // Spirograph specific state
+        let spiroTime = 0;
+        let lastSpiroX = -1;
+        let lastSpiroY = -1;
+        let needsSpiroClear = true;
+
+        // Tab Switching
+        const tabs = ['bouncing', 'pendulum', 'spirograph'];
+        tabs.forEach(tab => {
+            document.getElementById(`tab-${tab}`).addEventListener('click', () => {
+                state.activeSim = tab;
+                
+                // Update button styles
+                tabs.forEach(t => {
+                    const btn = document.getElementById(`tab-${t}`);
+                    const panel = document.getElementById(`panel-${t}`);
+                    if (t === tab) {
+                        btn.className = "tab-btn px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all flex-1 bg-blue-600 text-white shadow-lg shadow-blue-900/20";
+                        panel.classList.remove('hidden');
+                        panel.classList.add('block');
+                    } else {
+                        btn.className = "tab-btn px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all flex-1 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200";
+                        panel.classList.add('hidden');
+                        panel.classList.remove('block');
+                    }
+                });
+
+                if (tab === 'spirograph') {
+                    needsSpiroClear = true;
+                    spiroTime = 0;
+                    lastSpiroX = -1;
+                    lastSpiroY = -1;
+                } else if (tab === 'bouncing') {
+                    initBalls();
+                }
+            });
+        });
+
+        // Binding sliders and inputs
+        function bindInput(id, category, key, isCheckbox = false) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            el.addEventListener(isCheckbox ? 'change' : 'input', (e) => {
+                const val = isCheckbox ? e.target.checked : 
+                           (el.type === 'range' ? parseFloat(e.target.value) : e.target.value);
+                
+                state[category][key] = val;
+                
+                const valDisplay = document.getElementById(`${id}-val`);
+                if (valDisplay) valDisplay.textContent = val;
+
+                // Special handling based on input
+                if (category === 'spirograph') {
+                    needsSpiroClear = true;
+                    spiroTime = 0;
+                    lastSpiroX = -1;
+                    lastSpiroY = -1;
+                }
+                
+                if (id === 'b-count' || id === 'b-shape') initBalls();
+                
+                if (id === 'b-multiply') {
+                    document.getElementById('b-max-container').style.display = val ? 'block' : 'none';
+                }
+            });
+        }
+
+        bindInput('b-speed', 'bouncing', 'speed');
+        bindInput('b-count', 'bouncing', 'count');
+        bindInput('b-trail', 'bouncing', 'trailLength');
+        bindInput('b-shape', 'bouncing', 'shape');
+        bindInput('b-center', 'bouncing', 'drawCenterLines', true);
+        bindInput('b-multiply', 'bouncing', 'multiplyOnCollision', true);
+        bindInput('b-max', 'bouncing', 'maxBalls');
+        bindInput('b-random', 'bouncing', 'randomizeDirections', true);
+        
+        bindInput('p-speed', 'pendulum', 'speed');
+        bindInput('p-count', 'pendulum', 'count');
+        bindInput('p-offset', 'pendulum', 'lengthMultiplier');
+
+        bindInput('s-outer', 'spirograph', 'outerRadius');
+        bindInput('s-inner', 'spirograph', 'innerRadius');
+        bindInput('s-pen', 'spirograph', 'penDistance');
+        bindInput('s-speed', 'spirograph', 'speed');
+
+        document.getElementById('btn-restart').addEventListener('click', () => {
+            initBalls();
+        });
+
+        function resize() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            state.dimensions.width = canvas.width;
+            state.dimensions.height = canvas.height;
+            cx = canvas.width / 2;
+            cy = canvas.height / 2;
+            needsSpiroClear = true; // Clear if resized during spirograph
+            
+            // Re-center balls if they are outside
+            balls.forEach(b => {
+                b.x = cx;
+                b.y = cy;
+                b.history = [];
+            });
+        }
+
+        window.addEventListener('resize', resize);
+
+        function initBalls() {
+            const s = state.bouncing;
+            balls = Array.from({ length: s.count }).map((_, i) => {
+                const angle = s.randomizeDirections 
+                    ? Math.random() * Math.PI * 2 
+                    : (i / s.count) * Math.PI * 2;
+                return {
+                    x: cx, y: cy,
+                    vx: Math.cos(angle) * s.speed,
+                    vy: Math.sin(angle) * s.speed,
+                    history: [],
+                    hue: (i * 360) / Math.max(1, s.count),
+                    cooldown: 30
+                };
+            });
+        }
+
+        function draw() {
+            time++;
+
+            if (state.activeSim === 'bouncing') {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, state.dimensions.width, state.dimensions.height);
+
+                const s = state.bouncing;
+                const radius = Math.min(cx, cy) * 0.8;
+
+                // Draw boundary
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                if (s.shape === 'circle') {
+                    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                } else if (s.shape === 'square') {
+                    ctx.rect(cx - radius, cy - radius, radius * 2, radius * 2);
+                } else if (s.shape === 'oval') {
+                    ctx.ellipse(cx, cy, radius, radius * 0.6, 0, 0, Math.PI * 2);
+                } else if (s.shape === 'hexagon' || s.shape === 'pentagon') {
+                    const sides = s.shape === 'hexagon' ? 6 : 5;
+                    for (let i = 0; i < sides; i++) {
+                        const angle = (i * Math.PI * 2) / sides - (Math.PI / 2);
+                        const hx = cx + radius * Math.cos(angle);
+                        const hy = cy + radius * Math.sin(angle);
+                        if (i === 0) ctx.moveTo(hx, hy);
+                        else ctx.lineTo(hx, hy);
+                    }
+                    ctx.closePath();
+                }
+                ctx.stroke();
+
+                // Update and draw balls
+                balls.forEach(ball => {
+                    ball.history.push({ x: ball.x, y: ball.y });
+                    if (ball.history.length > s.trailLength) ball.history.shift();
+
+                    let nextX = ball.x + ball.vx;
+                    let nextY = ball.y + ball.vy;
+
+                    // Shape Collision Logic
+                    if (s.shape === 'circle') {
+                        const dist = Math.hypot(nextX - cx, nextY - cy);
+                        if (dist > radius - 5) {
+                            const nx = (nextX - cx) / dist;
+                            const ny = (nextY - cy) / dist;
+                            const dotProduct = ball.vx * nx + ball.vy * ny;
+                            if(dotProduct > 0) {
+                                ball.vx = ball.vx - 2 * dotProduct * nx;
+                                ball.vy = ball.vy - 2 * dotProduct * ny;
+                                const speed = Math.hypot(ball.vx, ball.vy);
+                                ball.vx = (ball.vx / speed) * s.speed;
+                                ball.vy = (ball.vy / speed) * s.speed;
+                            }
+                        }
+                    } else if (s.shape === 'square') {
+                        if (nextX > cx + radius - 5 || nextX < cx - radius + 5) ball.vx *= -1;
+                        if (nextY > cy + radius - 5 || nextY < cy - radius + 5) ball.vy *= -1;
+                        const speed = Math.hypot(ball.vx, ball.vy);
+                        ball.vx = (ball.vx / speed) * s.speed;
+                        ball.vy = (ball.vy / speed) * s.speed;
+                    } else if (s.shape === 'oval') {
+                        const rx = radius;
+                        const ry = radius * 0.6;
+                        const dx = nextX - cx;
+                        const dy = nextY - cy;
+                        if ((dx * dx) / (rx * rx) + (dy * dy) / (ry * ry) > 0.95) {
+                            const nx = dx / (rx * rx);
+                            const ny = dy / (ry * ry);
+                            const mag = Math.hypot(nx, ny);
+                            const nnx = nx / mag;
+                            const nny = ny / mag;
+                            const dotProduct = ball.vx * nnx + ball.vy * nny;
+                            if (dotProduct > 0) {
+                                ball.vx = ball.vx - 2 * dotProduct * nnx;
+                                ball.vy = ball.vy - 2 * dotProduct * nny;
+                                const speed = Math.hypot(ball.vx, ball.vy);
+                                ball.vx = (ball.vx / speed) * s.speed;
+                                ball.vy = (ball.vy / speed) * s.speed;
+                            }
+                        }
+                    } else if (s.shape === 'hexagon' || s.shape === 'pentagon') {
+                        const sides = s.shape === 'hexagon' ? 6 : 5;
+                        const angleOffset = -Math.PI / 2;
+                        let a = Math.atan2(nextY - cy, nextX - cx) - angleOffset;
+                        a = (a + Math.PI * 4) % (Math.PI * 2); 
+                        
+                        const sectorAngle = (Math.PI * 2) / sides;
+                        const sector = Math.floor(a / sectorAngle);
+                        
+                        const normalAngle = sectorAngle * sector + sectorAngle / 2 + angleOffset;
+                        const apothem = radius * Math.cos(sectorAngle / 2);
+                        
+                        const dx = nextX - cx;
+                        const dy = nextY - cy;
+                        const dist = dx * Math.cos(normalAngle) + dy * Math.sin(normalAngle);
+                        
+                        if (dist > apothem - 5) {
+                            const nx = Math.cos(normalAngle);
+                            const ny = Math.sin(normalAngle);
+                            const dotProduct = ball.vx * nx + ball.vy * ny;
+                            if (dotProduct > 0) {
+                                ball.vx = ball.vx - 2 * dotProduct * nx;
+                                ball.vy = ball.vy - 2 * dotProduct * ny;
+                                const speed = Math.hypot(ball.vx, ball.vy);
+                                ball.vx = (ball.vx / speed) * s.speed;
+                                ball.vy = (ball.vy / speed) * s.speed;
+                            }
+                        }
+                    }
+
+                    // Update Position
+                    ball.x += ball.vx;
+                    ball.y += ball.vy;
+                    if (ball.cooldown > 0) ball.cooldown--;
+
+                    // Rendering
+                    if (s.drawCenterLines) {
+                        ctx.beginPath();
+                        ctx.moveTo(cx, cy);
+                        ctx.lineTo(ball.x, ball.y);
+                        ctx.strokeStyle = `hsla(${ball.hue}, 70%, 50%, 0.3)`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+
+                    ctx.beginPath();
+                    ball.history.forEach((pos, index) => {
+                        if (index === 0) ctx.moveTo(pos.x, pos.y);
+                        else ctx.lineTo(pos.x, pos.y);
+                    });
+                    ctx.strokeStyle = `hsl(${ball.hue}, 70%, 50%)`;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(ball.x, ball.y, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff';
+                    ctx.fill();
+                });
+
+                if (s.multiplyOnCollision) {
+                    let newBalls = [];
+                    for (let i = 0; i < balls.length; i++) {
+                        for (let j = i + 1; j < balls.length; j++) {
+                            let b1 = balls[i];
+                            let b2 = balls[j];
+                            
+                            if (b1.cooldown <= 0 && b2.cooldown <= 0) {
+                                const dist = Math.hypot(b1.x - b2.x, b1.y - b2.y);
+                                if (dist < 10) { 
+                                    b1.cooldown = 30;
+                                    b2.cooldown = 30;
+                                    
+                                    const tempVx = b1.vx;
+                                    const tempVy = b1.vy;
+                                    b1.vx = b2.vx;
+                                    b1.vy = b2.vy;
+                                    b2.vx = tempVx;
+                                    b2.vy = tempVy;
+                                    
+                                    const spawnClone = (parent) => {
+                                        let nvx = -parent.vy; 
+                                        let nvy = parent.vx;
+                                        const speed = Math.hypot(nvx, nvy);
+                                        return {
+                                            x: parent.x, y: parent.y,
+                                            vx: (nvx / speed) * s.speed,
+                                            vy: (nvy / speed) * s.speed,
+                                            history: [],
+                                            hue: (parent.hue + 45) % 360,
+                                            cooldown: 30
+                                        };
+                                    };
+                                    
+                                    if (balls.length + newBalls.length < s.maxBalls) newBalls.push(spawnClone(b1));
+                                    if (balls.length + newBalls.length < s.maxBalls) newBalls.push(spawnClone(b2));
+                                }
+                            }
+                        }
+                    }
+                    balls.push(...newBalls);
+                }
+
+            } else if (state.activeSim === 'pendulum') {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, state.dimensions.width, state.dimensions.height);
+                
+                const s = state.pendulum;
+                const maxLen = Math.min(cx, cy) * 0.8;
+                
+                for (let i = 0; i < s.count; i++) {
+                    const length = maxLen - (i * s.lengthMultiplier);
+                    const freq = s.speed / Math.sqrt(Math.max(10, length));
+                    const angle = Math.sin(time * freq * 0.05) * (Math.PI / 4);
+                    
+                    const endX = cx + Math.sin(angle) * length;
+                    const endY = cy * 0.2 + Math.cos(angle) * length;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy * 0.2);
+                    ctx.lineTo(endX, endY);
+                    ctx.strokeStyle = '#334155';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(endX, endY, 6, 0, Math.PI * 2);
+                    const hue = (i * 360) / s.count;
+                    ctx.fillStyle = `hsl(${hue}, 80%, 60%)`;
+                    ctx.fill();
+                }
+
+            } else if (state.activeSim === 'spirograph') {
+                if (needsSpiroClear) {
+                    ctx.fillStyle = '#0f172a';
+                    ctx.fillRect(0, 0, state.dimensions.width, state.dimensions.height);
+                    needsSpiroClear = false;
+                }
+
+                const s = state.spirograph;
+                const R = s.outerRadius;
+                const r = s.innerRadius;
+                const d = s.penDistance;
+
+                ctx.beginPath();
+                for(let i=0; i<s.speed; i++) {
+                    spiroTime += 0.05;
+                    const x = cx + (R - r) * Math.cos(spiroTime) + d * Math.cos(((R - r) / r) * spiroTime);
+                    const y = cy + (R - r) * Math.sin(spiroTime) - d * Math.sin(((R - r) / r) * spiroTime);
+
+                    if (lastSpiroX !== -1) {
+                        ctx.moveTo(lastSpiroX, lastSpiroY);
+                        ctx.lineTo(x, y);
+                    }
+                    lastSpiroX = x;
+                    lastSpiroY = y;
+                }
+                
+                ctx.strokeStyle = `hsla(${(time * 0.1) % 360}, 80%, 60%, 0.8)`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            animationId = requestAnimationFrame(draw);
+        }
+
+        // Initialize and start
+        resize();
+        initBalls();
+        draw();
+
+    </script>
+</body>
+</html>
